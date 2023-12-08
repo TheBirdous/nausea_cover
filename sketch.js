@@ -59,16 +59,18 @@ class Root {
   }
 
   drawSegment() {
-    stroke(0,100)
-    ellipse(this.x, this.y, this.segmentSizeX, this.segmentSizeY);
-    this.update();
-    this.currLen++; 
-    if (this.currLen % 100 == 0) {
-      console.log("branchd")
-      this.by = this.y;
-      this.bx = this.x;
-      this.bsgm = this.segmentSizeX;
-      this.drawBranch();
+    if (this.segmentSizeX > 1) {
+      stroke(0,100)
+      ellipse(this.x, this.y, this.segmentSizeX, this.segmentSizeY);
+      this.update();
+      this.currLen++; 
+      // if (this.currLen % 100 == 0) {
+      //   console.log("branchd")
+      //   this.by = this.y;
+      //   this.bx = this.x;
+      //   this.bsgm = this.segmentSizeX;
+      //   this.drawBranch();
+      // }
     }
   }
 
@@ -105,18 +107,18 @@ class Root {
     // }
   }
 
-  updateBranch(cap) {
-    let noiseScale = 0.1;
-    let noiseoff = noise(this.bx*noiseScale, 
-                          this.by*noiseScale, 
-                          (this.noiseZ+cap)*noiseScale);
-    let noisea = TAU*noiseoff - PI;
-    //console.log(noisea)
-    let segmSizeOffs = -this.bsgm/50;
-    this.bsgm += segmSizeOffs;
-    this.bx += cos(noisea);
-    this.by += sin(noisea);
-  }
+  // updateBranch(cap) {
+  //   let noiseScale = 0.1;
+  //   let noiseoff = noise(this.bx*noiseScale, 
+  //                         this.by*noiseScale, 
+  //                         (this.noiseZ+cap)*noiseScale);
+  //   let noisea = TAU*noiseoff - PI;
+  //   //console.log(noisea)
+  //   let segmSizeOffs = -this.bsgm/50;
+  //   this.bsgm += segmSizeOffs;
+  //   this.bx += cos(noisea);
+  //   this.by += sin(noisea);
+  // }
 
   draw() {
      
