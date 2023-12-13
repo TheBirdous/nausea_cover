@@ -1,10 +1,11 @@
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noLoop();
+  pixelDensity(2);
 }
 
 function draw() {
-  //background(220);
+  background(255);
   let footX = width/2;
   let footY = height/3;
   let barkThick = 100;
@@ -17,8 +18,8 @@ function draw() {
   //drawNoiseVects();
 
   let rs = new RootSystem(rsOrig.x, rsOrig.y, 
-    rootSysWidth, rootLen, 
-    rootThick, barkThick);
+   rootSysWidth, rootLen, 
+   rootThick, barkThick, freq);
   rs.draw();
 
 }
@@ -41,17 +42,18 @@ function drawNoiseVects() {
 }
 
 class RootSystem {
-  constructor(x, y, widthVar, maxLen, startSize, barkThick) {
+  constructor(x, y, widthVar, maxLen, startSize, barkThick, freq) {
     this.x = x;
     this.y = y;
     this.width = widthVar*PI;
     this.len = maxLen;
     this.startSize = startSize;
     this.rootStack = [];
-    this.barkThick = barkThick
+    this.barkThick = barkThick;
+    this.freq = freq;
 
-    let angle = PI/6;
-    let orig = this.barkRootConnect(this.x, this.y, barkThick, this.x-barkThick/2, this.y+barkThick, this.startSize);
+    let angle = -PI/12;
+    let orig = this.barkRootConnect(this.x, this.y, barkThick, this.x-barkThick/2, this.y+barkThick/2, this.startSize);
     let root = new Root(orig.x, orig.y, this.len, this.startSize, this.startSize, angle);
     //this.rootStack.push(root);
     let branches = root.draw();
@@ -61,9 +63,10 @@ class RootSystem {
         this.rootStack.push(br);
       }
     }
-    angle = this.width/2 - PI/12;
-    let orig1 = this.barkRootConnect(this.x, this.y, barkThick, this.x, this.y+barkThick, this.startSize);
-    root = new Root(orig1.x, orig1.y, this.len, this.startSize, this.startSize, angle);
+
+    angle = 0;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x-barkThick/3, this.y+barkThick, this.startSize-20);
+    root = new Root(orig.x, orig.y, this.len-50, this.startSize-20, this.startSize-20, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
@@ -72,9 +75,34 @@ class RootSystem {
         this.rootStack.push(br);
       }
     }
-    angle = this.width - PI/6;
-    let orig2 = this.barkRootConnect(this.x, this.y, barkThick, this.x+barkThick/2, this.y+barkThick, this.startSize);
-    root = new Root(orig2.x, orig2.y, this.len, this.startSize, this.startSize, angle);
+
+    angle = PI - PI/8;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x+barkThick/3, this.y+barkThick, this.startSize-20);
+    root = new Root(orig.x, orig.y, this.len-50, this.startSize-20, this.startSize-20, angle);
+    //this.rootStack.push(root);
+    branches = root.draw();
+    if (root.len > 50) {
+      for (var br of branches) {
+        br.len = br.len/3;
+        this.rootStack.push(br);
+      }
+    }
+
+    angle = PI - PI/12;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x+barkThick/2, this.y+barkThick/2, this.startSize);
+    root = new Root(orig.x, orig.y, this.len, this.startSize, this.startSize, angle);
+    //this.rootStack.push(root);
+    branches = root.draw();
+    if (root.len > 50) {
+      for (var br of branches) {
+        br.len = br.len/3;
+        this.rootStack.push(br);
+      }
+    }
+
+    angle = PI/12;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x, this.y+barkThick, this.startSize+15);
+    root = new Root(orig.x, orig.y, this.len, this.startSize+15, this.startSize+15, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
@@ -94,13 +122,16 @@ class RootSystem {
     let xStep = delX/delY;
     let thick = tB;
     let x = xB;
-    let divis = 3;
+    let divis = 4;
+    let divCnt = 0;
     let y;
     for (y = yB; y < yR; y+=1/divis) {
-      let xOfs = map(noise(y*0.08),0,1,-1,1);
-      let yOfs = map(noise(y*0.08),0,1,-1,1);
+      let xOfs = map(noise(y*this.freq*divis + yB),0,1,-2,2);
+      let yOfs = 1//map(noise(y*this.freq*divis),0,1,-1,1);
       thick -= thickStep/divis;
       x += xStep/divis+xOfs/divis;
+
+
       circle(x, y+yOfs, thick);
     }
     return createVector(x, y);
@@ -191,6 +222,16 @@ class Root {
 }
 
 function drawBark(btmX, btmY, thick, freq, z) {
+  // for (let i = btmY; i > -100; i-=1.5) {
+  //   push();
+  //   stroke(0,100);
+  //   let curOfs = map(noise(i * freq), 0, 1, -(btmY-i)/3, (btmY-i)/3);
+  //   translate(btmX+(btmY-i)+10,i);
+  //   rotate(-QUARTER_PI);
+  //   line(0,-thick/2+curOfs+(btmY-i)/7, 0,thick/2+curOfs-(btmY-i)/7)
+  //   pop();
+  // }
+
   push();
   let randOffs = [];
   let lastC;
@@ -198,25 +239,29 @@ function drawBark(btmX, btmY, thick, freq, z) {
     stroke(0,100)
     //stroke(0, map(i,height/2,0,255,0))
     //noFill();
-    let curOfs = map(noise(i * 0.03), 0, 1, -10, 10);
+    let curOfs = map(noise(i * freq), 0, 1, -10, 10);
     randOffs.push(curOfs);
-    circle(btmX+curOfs,i,thick);
+    circle(btmX+curOfs,i,thick)
     lastC = createVector(btmX+curOfs,i);
   }
   pop();
 
   let i = 0;
+  loadPixels();
+  let d = pixelDensity();
   for (let y = 0; y < btmY; y++) {
     //let randOffs = map(noise(y * freq), 0, 1, 20, 100);
     let curOfs = randOffs[i];
     let circL = btmX+curOfs - (thick+curOfs)/2;
     let circR = btmX+curOfs + (thick+curOfs)/2;
     for (let x = 0; x < width; x++) {
-      let myNoise = marble(freq * x, freq * y, freq * z);
-      stroke(map(myNoise, 0, 1, 0, 255),100);
-      
-      if (x > circL && x < circR) {
-        //point(x, y);
+      let myNoise = marble(freq * (x +curOfs), freq * (y + curOfs), freq * z);
+      let strokealph = map(y,btmY/3,btmY-thick/2,100,0,1)
+      stroke(map(myNoise, 0, 1, 0, 255),strokealph);
+      //stroke(20);
+      let index = 4*(y*d*width + x*d);
+      if (pixels[index+2] < 200) {
+        point(x, y);
       }
     }
     i++;
