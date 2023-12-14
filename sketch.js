@@ -7,7 +7,7 @@ function setup() {
 function draw() {
   background(255);
   let footX = width/2;
-  let footY = height/3;
+  let footY = height/2;
   let barkThick = 100;
   let rootThick = 40;
   let rootLen = 400;
@@ -114,7 +114,7 @@ class RootSystem {
   }
 
   barkRootConnect(xB, yB, tB, xR, yR, tR) {
-    stroke(0,50);
+    stroke(0,100);
     let delX = xR-xB;
     let delY = abs(yB-yR);
     let delT = abs(tB-tR);
@@ -122,7 +122,7 @@ class RootSystem {
     let xStep = delX/delY;
     let thick = tB;
     let x = xB;
-    let divis = 4;
+    let divis = 1;
     let divCnt = 0;
     let y;
     for (y = yB; y < yR; y+=1/divis) {
@@ -206,8 +206,8 @@ class Root {
     let segmSizeOffs;
     if (this.segmentSizeX > this.startSize) {
       segmSizeOffs = -this.initSize/(this.initSize-this.startSize);
-      this.x += cos(this.noisea)*0.3;
-      this.y += sin(this.noisea)*0.3;
+      this.x += cos(this.noisea)*1;
+      this.y += sin(this.noisea)*1;
     } else {
       segmSizeOffs = -this.startSize/this.len;
       this.x += cos(this.noisea);
@@ -237,11 +237,14 @@ function drawBark(btmX, btmY, thick, freq, z) {
   let lastC;
   for (let i = 0; i < btmY; i++) {
     stroke(0,100)
-    //stroke(0, map(i,height/2,0,255,0))
+    stroke(0, map(i,height/2-100,0,100,0,1))
     //noFill();
+    let dispers = 0.004;
+    let curWidth = dispers*pow(i-btmY,2) + thick;
+    console.log(curWidth);
     let curOfs = map(noise(i * freq), 0, 1, -10, 10);
     randOffs.push(curOfs);
-    circle(btmX+curOfs,i,thick)
+    circle(btmX+curOfs,i,curWidth)
     lastC = createVector(btmX+curOfs,i);
   }
   pop();
@@ -261,7 +264,7 @@ function drawBark(btmX, btmY, thick, freq, z) {
       //stroke(20);
       let index = 4*(y*d*width + x*d);
       if (pixels[index+2] < 200) {
-        point(x, y);
+        //point(x, y);
       }
     }
     i++;
