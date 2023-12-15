@@ -6,6 +6,8 @@ function setup() {
 
 function draw() {
   background(255);
+  translate(125,125)
+  scale(0.7)
   let footX = width/2;
   let footY = height/2;
   let barkThick = 100;
@@ -222,71 +224,25 @@ class Root {
 }
 
 function drawBark(btmX, btmY, thick, freq, z) {
-  // for (let i = btmY; i > -100; i-=1.5) {
-  //   push();
-  //   stroke(0,100);
-  //   let curOfs = map(noise(i * freq), 0, 1, -(btmY-i)/3, (btmY-i)/3);
-  //   translate(btmX+(btmY-i)+10,i);
-  //   rotate(-QUARTER_PI);
-  //   line(0,-thick/2+curOfs+(btmY-i)/7, 0,thick/2+curOfs-(btmY-i)/7)
-  //   pop();
-  // }
-
   push();
   let randOffs = [];
   let lastC;
+  let top = 11;
   for (let i = 0; i < btmY; i++) {
     stroke(0,100)
     stroke(0, map(i,height/2-100,0,100,0,1))
     //noFill();
-    let dispers = 0.004;
+    let dispers = 0.008;
     let curWidth = dispers*pow(i-btmY,2) + thick;
-    console.log(curWidth);
+    let h = -pow(2*top*(1/btmY)*i-top,2)+pow(top,2);
+    console.log(h);
     let curOfs = map(noise(i * freq), 0, 1, -10, 10);
     randOffs.push(curOfs);
-    circle(btmX+curOfs,i,curWidth)
-    lastC = createVector(btmX+curOfs,i);
+    circle(btmX+curOfs,-h+btmY,curWidth)
+    lastC = createVector(btmX+curOfs,-h+btmY);
   }
+
   pop();
 
-  let i = 0;
-  loadPixels();
-  let d = pixelDensity();
-  for (let y = 0; y < btmY; y++) {
-    //let randOffs = map(noise(y * freq), 0, 1, 20, 100);
-    let curOfs = randOffs[i];
-    let circL = btmX+curOfs - (thick+curOfs)/2;
-    let circR = btmX+curOfs + (thick+curOfs)/2;
-    for (let x = 0; x < width; x++) {
-      let myNoise = marble(freq * (x +curOfs), freq * (y + curOfs), freq * z);
-      let strokealph = map(y,btmY/3,btmY-thick/2,100,0,1)
-      stroke(map(myNoise, 0, 1, 0, 255),strokealph);
-      //stroke(20);
-      let index = 4*(y*d*width + x*d);
-      if (pixels[index+2] < 200) {
-        //point(x, y);
-      }
-    }
-    i++;
-  }
   return lastC;
-}
-
-function marble(x, y, z) {
-  let fi = 1.0;
-  let fm = 2.0;
-  let fs = 64.0;
-  let ai = 1.0;
-  let am = 0.5;
-  let alpha = 10.0;
-  let marble = 0.0;
-
-  while (2 * fi <= fs) {
-    marble += ai * noise(fi * x, fi * y, fi * z);
-    fi = fi * fm;
-    ai = ai * am;
-    //console.log(fi);
-  }
-  marble = sin(alpha * (x + marble));
-  return marble;
 }
