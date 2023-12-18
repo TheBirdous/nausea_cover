@@ -1,29 +1,48 @@
+let cnv;
+let z;
+let noiseOffs;
+let noiseOffsStep;
+let imgCount;
+// 3:4 settings
+// cnv = createCanvas(300*1.5, 400*1.5);
+// let footY = height / 2;
+
+// 16:9 settings
+// cnv = createCanvas(16 * 50, 9 * 50);
+// let footY = height / 1.5;
+
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  cnv = createCanvas(16 * 50, 9 * 50);
+  z = random(0, 100);
+  noiseOffs = 1;
+  noiseOffsStep = 0.1;
+  imgCount = 30;
   noLoop();
-  pixelDensity(2);
+  pixelDensity(3);
+  strokeWeight(1);
 }
 
 function draw() {
+  push();
   background(255);
-  translate(125,125)
-  scale(0.7)
-  let footX = width/2;
-  let footY = height/2;
+  let footX = 0;
+  let footY = height / 1.4;
+  let myScale = 0.5;
+  translate(width / 2, height / 7)
+  scale(myScale)
   let barkThick = 100;
   let rootThick = 40;
   let rootLen = 400;
   let rootSysWidth = 1;
-  let z = random(0, 100);
   let freq = 0.05;
-  let rsOrig = drawBark(footX, footY, barkThick, freq, z);
+  let rsOrig = drawTrunk(footX, footY, barkThick, freq, z);
   //drawNoiseVects();
 
-  let rs = new RootSystem(rsOrig.x, rsOrig.y, 
-   rootSysWidth, rootLen, 
-   rootThick, barkThick, freq);
+  let rs = new RootSystem(rsOrig.x, rsOrig.y,
+    rootSysWidth, rootLen,
+    rootThick, barkThick, freq);
   rs.draw();
-
+  pop();
 }
 
 function drawNoiseVects() {
@@ -32,7 +51,7 @@ function drawNoiseVects() {
   for (let y = 0; y < height; y += step) {
     for (let x = 0; x < width; x += step) {
       //console.log("finish");
-      let noiseoff = noise(x * noiseScale, y * noiseScale);
+      let noiseoff = noise(x * noiseScale, y + noiseOffs * noiseScale);
       let noisea = TAU * noiseoff;
       x1 = x + cos(noisea) * 20;
       y1 = y + sin(noisea) * 20;
@@ -47,94 +66,94 @@ class RootSystem {
   constructor(x, y, widthVar, maxLen, startSize, barkThick, freq) {
     this.x = x;
     this.y = y;
-    this.width = widthVar*PI;
+    this.width = widthVar * PI;
     this.len = maxLen;
     this.startSize = startSize;
     this.rootStack = [];
     this.barkThick = barkThick;
     this.freq = freq;
 
-    let angle = -PI/12;
-    let orig = this.barkRootConnect(this.x, this.y, barkThick, this.x-barkThick/2, this.y+barkThick/2, this.startSize);
+    let angle = -PI / 12;
+    let orig = this.barkRootConnect(this.x, this.y, barkThick, this.x - barkThick / 2, this.y + barkThick / 2, this.startSize);
     let root = new Root(orig.x, orig.y, this.len, this.startSize, this.startSize, angle);
     //this.rootStack.push(root);
     let branches = root.draw();
     if (root.len > 50) {
       for (var br of branches) {
-        br.len = br.len/3;
+        br.len = br.len / 3;
         this.rootStack.push(br);
       }
     }
 
     angle = 0;
-    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x-barkThick/3, this.y+barkThick, this.startSize-20);
-    root = new Root(orig.x, orig.y, this.len-50, this.startSize-20, this.startSize-20, angle);
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x - barkThick / 3, this.y + barkThick, this.startSize - 20);
+    root = new Root(orig.x, orig.y, this.len - 50, this.startSize - 20, this.startSize - 20, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
       for (var br of branches) {
-        br.len = br.len/3;
+        br.len = br.len / 3;
         this.rootStack.push(br);
       }
     }
 
-    angle = PI - PI/8;
-    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x+barkThick/3, this.y+barkThick, this.startSize-20);
-    root = new Root(orig.x, orig.y, this.len-50, this.startSize-20, this.startSize-20, angle);
+    angle = PI - PI / 8;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x + barkThick / 3, this.y + barkThick, this.startSize - 20);
+    root = new Root(orig.x, orig.y, this.len - 50, this.startSize - 20, this.startSize - 20, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
       for (var br of branches) {
-        br.len = br.len/3;
+        br.len = br.len / 3;
         this.rootStack.push(br);
       }
     }
 
-    angle = PI - PI/12;
-    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x+barkThick/2, this.y+barkThick/2, this.startSize);
+    angle = PI - PI / 12;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x + barkThick / 2, this.y + barkThick / 2, this.startSize);
     root = new Root(orig.x, orig.y, this.len, this.startSize, this.startSize, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
       for (var br of branches) {
-        br.len = br.len/3;
+        br.len = br.len / 3;
         this.rootStack.push(br);
       }
     }
 
-    angle = PI/12;
-    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x, this.y+barkThick, this.startSize+15);
-    root = new Root(orig.x, orig.y, this.len, this.startSize+15, this.startSize+15, angle);
+    angle = PI / 12;
+    orig = this.barkRootConnect(this.x, this.y, barkThick, this.x, this.y + barkThick, this.startSize + 15);
+    root = new Root(orig.x, orig.y, this.len, this.startSize + 15, this.startSize + 15, angle);
     //this.rootStack.push(root);
     branches = root.draw();
     if (root.len > 50) {
       for (var br of branches) {
-        br.len = br.len/3;
+        br.len = br.len / 3;
         this.rootStack.push(br);
       }
     }
   }
 
   barkRootConnect(xB, yB, tB, xR, yR, tR) {
-    stroke(0,100);
-    let delX = xR-xB;
-    let delY = abs(yB-yR);
-    let delT = abs(tB-tR);
-    let thickStep = delT/delY;
-    let xStep = delX/delY;
+    stroke(0, 100);
+    let delX = xR - xB;
+    let delY = abs(yB - yR);
+    let delT = abs(tB - tR);
+    let thickStep = delT / delY;
+    let xStep = delX / delY;
     let thick = tB;
     let x = xB;
     let divis = 1;
     let divCnt = 0;
     let y;
-    for (y = yB; y < yR; y+=1/divis) {
-      let xOfs = map(noise(y*this.freq*divis + yB),0,1,-2,2);
+    for (y = yB; y < yR; y += 1 / divis) {
+      let xOfs = map(noise(y * this.freq * divis + yB, noiseOffs), 0, 1, -2, 2);
       let yOfs = 1//map(noise(y*this.freq*divis),0,1,-1,1);
-      thick -= thickStep/divis;
-      x += xStep/divis+xOfs/divis;
+      thick -= thickStep / divis;
+      x += xStep / divis + xOfs;
 
 
-      circle(x, y+yOfs, thick);
+      circle(x, y + yOfs, thick);
     }
     return createVector(x, y);
   }
@@ -145,7 +164,7 @@ class RootSystem {
       let branches = root.draw();
       if (root.len > 50) {
         for (var br of branches) {
-          br.len = br.len/3;
+          br.len = br.len / 3;
           this.rootStack.push(br);
         }
       }
@@ -174,13 +193,13 @@ class Root {
     }
 
     let branchPoints = [];
-    let nextBrPt = this.len/this.numBranches;
+    let nextBrPt = this.len / this.numBranches;
     let i = 0;
     while (this.segmentSizeX > 1) {
       this.drawSegment();
       if (i >= nextBrPt) {
         branchPoints.push(new Root(this.x, this.y, this.len, this.segmentSizeX, this.segmentSizeX, this.noisea));
-        nextBrPt += this.len/this.numBranches;
+        nextBrPt += this.len / this.numBranches;
       }
       i++;
     }
@@ -203,46 +222,60 @@ class Root {
     let noiseScale = 0.1;
     let noiseoff = noise(this.x * noiseScale,
       this.y * noiseScale,
-      this.noiseZ * noiseScale);
+      (this.noiseZ + noiseOffs) * noiseScale);
     this.noisea = TAU * noiseoff - this.angle;
     let segmSizeOffs;
-    if (this.segmentSizeX > this.startSize) {
-      segmSizeOffs = -this.initSize/(this.initSize-this.startSize);
-      this.x += cos(this.noisea)*1;
-      this.y += sin(this.noisea)*1;
-    } else {
-      segmSizeOffs = -this.startSize/this.len;
-      this.x += cos(this.noisea);
-      this.y += sin(this.noisea);
-    }
-    //let segmSizeOffs = -this.startSize/this.len + noiseoff/this.len;
-    //let segmSizeOffs = -(this.noisea)*0.11;
+    segmSizeOffs = -this.startSize / this.len;
+    this.x += cos(this.noisea);
+    this.y += sin(this.noisea);
     this.segmentSizeX += segmSizeOffs;
     this.segmentSizeY += segmSizeOffs;
-
   }
 }
 
-function drawBark(btmX, btmY, thick, freq, z) {
+function drawTrunk(btmX, btmY, thick, freq, z) {
   push();
   let randOffs = [];
   let lastC;
   let top = 11;
-  for (let i = 0; i < btmY; i++) {
-    stroke(0,100)
-    stroke(0, map(i,height/2-100,0,100,0,1))
+  for (let i = 0; i < btmY; i += 1) {
+    stroke(0, map(i, height / 2 - 100, 0, 100, 0, 1));
+
     //noFill();
     let dispers = 0.008;
-    let curWidth = dispers*pow(i-btmY,2) + thick;
-    let h = -pow(2*top*(1/btmY)*i-top,2)+pow(top,2);
+    let curWidth = dispers * pow(i - btmY, 2) + thick;
+    let h = -pow(2 * top * (1 / btmY) * i - top, 2) + pow(top, 2);
     console.log(h);
-    let curOfs = map(noise(i * freq), 0, 1, -10, 10);
+    let curOfs = map(noise(i * freq, noiseOffs), 0, 1, -5, 5);
     randOffs.push(curOfs);
-    circle(btmX+curOfs,-h+btmY,curWidth)
-    lastC = createVector(btmX+curOfs,-h+btmY);
+    circle(btmX + curOfs, -h + btmY, curWidth)
+    lastC = createVector(btmX + curOfs, -h + btmY);
   }
 
   pop();
-
   return lastC;
+}
+
+
+// Ulozeni obrazku
+function keyPressed() {
+  if (key === 's') {
+    save(cnv, 'stromky/stromek.png');
+  }
+  if (key === 'd') {
+    noiseOffs += noiseOffsStep;
+    draw();
+  }
+  if (key === 'b') {
+    exportVideo()
+  }
+}
+
+function exportVideo() {
+  for (let i = 0; i < imgCount; i++) {
+    let imgName = `stromek${i}.png`;
+    save(cnv, imgName);
+    noiseOffs += noiseOffsStep;
+    draw();
+  }
 }
